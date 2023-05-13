@@ -110,13 +110,27 @@ ggplot(diamdata,
        aes(y = depth,
            x = color))+ 
   ggtitle("Bar Chart") +
-  xlab("color") + ylab("depth")
+  xlab("color") + ylab("depth")+
+  geom_bar()
 
 
+#PRACTICAL SKILLS
+# Change the density plot so that the x-axis is carat 
+# the color is the diamond color
+# and the alpha is set to 0.3 using the inhibit function
+ggplot(data = diamdata, 
+       aes(x = carat, 
+           color = color, 
+           alpha = I(0.3))) +
+  geom_density()
 
-
-
-
+#Box plot
+# the boxplot , the x-axis is cut and
+#  the y-axis is price divided by carat
+ggplot(data = diamonds, 
+       aes(x = cut, 
+           y = (price/carat))) + 
+  geom_boxplot()
 
 
 
