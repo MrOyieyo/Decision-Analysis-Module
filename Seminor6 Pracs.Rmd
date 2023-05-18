@@ -1,0 +1,125 @@
+---
+title: "Seminor6"
+author: "OyieyoSilas"
+date: "2023-05-18"
+output: html_document
+---
+#Looking at different options for model programming.
+#main package for simulations is decisionSupport.
+#Installing the package and recall it in the library.
+```{r}
+
+library(decisionSupport)
+#plot the impact pathway
+#simple pathway transformed into codes using mermaid function
+
+library(DiagrammeR)
+#impact pathway diagram
+mermaid("graph LR
+        Y(Yield)-->I(Income); linkStyle 0 stroke:green, stroke-width:1px
+        M(Market price)-->I; linkStyle 1 stroke: green, stroke-width:1px
+        I-->F(Final result); linkStyle 2 stroke: green, stroke-width:1.5px
+        CL(Labor cost)-->F; linkStyle 3 stroke: red, stroke-width:1.5px")
+
+mermaid("graph LR
+        w(biomass)-->r(rootdev); linkStyle 0 stroke: red, stroke-width: 1.4px
+        T(roottype)-->r; linkStyle 1 stroke: green, stroke-width:1.5px ")
+
+mermaid("graph TD
+        Y(Yield)-->I(Income); linkStyle 0 stroke:green, stroke-width:1px
+        M(Market price)-->I; linkStyle 1 stroke: green, stroke-width:1px
+        I-->F(Final result); linkStyle 2 stroke: green, stroke-width:1px
+        CL(Labor cost)-->F; linkStyle 3 stroke: red, stroke-width:1px
+        CM(Management cost)-->F; linkStyle 4 stroke: red, stroke-width:1px")
+
+```
+
+
+#Model building
+
+```{r cars}
+#Model building
+input_estimated <- data.frame(variable = c("Yield", "Market_price", "Labour_cost", "Management_cost"),
+                              lower = c(6000, 3, 500, 100),
+                              median = NA,
+                              upper = c(14000, 8, 1000, 2000),
+                              distribution = c("posnorm", "posnorm", "posnorm", "posnorm"),
+                              label = c("Yield (kg/ha)", "Price (USD/kg)", "Labor cost (USD/ha)", "mgt cost(USD/ha)"),
+                              Description = c("Yield in a sweet cherry farm under normal conditions",
+                                              "Price of sweet cherry in a normal season",
+                                              "Labor costs in a normal season",
+                                              "Management costs in a normal season"))
+input_estimated
+
+
+```
+
+# Model function
+## i didnt understand the function bracket. what to feed in. i encountered some errors
+
+```{r}
+library(decisionSupport)
+                                  #didnot understood what to be in (function())below
+model_function <- function(input_estimated){
+# Estimate the income in a normal season
+income <- Yield * Market_price
+
+
+#summarize management and labour cost into overall cost
+overall_cost <- (Labour_cost + Management_cost)
+
+
+# Estimate the final results from the model
+final_result <- income - overall_cost
+
+# Generate the list of outputs from the Monte Carlo simulation
+return(list(final_result = final_result))}
+
+# Run the Monte Carlo simulation using the model function
+example_mc_simulation <- mcSimulation(estimate = as.estimate(input_estimated),
+                                      model_function = model_function,
+                                      numberOfModelRuns = 800,
+                                      functionSyntax = "plainNames")
+
+#example_mc_simulation
+```
+
+#Generatuing the plots.
+#ploting the histogram
+#setting method argument to histogram function. ploting will visualize the Monte Carlo simulation results.
+
+```{r}
+library(ggplot2)
+plot_distributions(mcSimulation_object = example_mc_simulation,
+                   vars = "final_result",
+                   method = "hist_simple_overlay",
+                   old_names = "final_result",
+                   new_names = "Outcome distribution for profits")
+
+```
+#rather running full model
+#testing with ,make_variables. make_variables and as.estimate to the data with default n=1 generate random data
+#note. each time the code is run it generate new values of data.
+```{r}
+make_variables <- function(est, n=1)
+{ x<-random(rho=est, n=n)
+for(i in colnames(x)) assign(i, as.numeric(x[1, i]), envir=.GlobalEnv)
+}
+
+#with the data i generated(example_mc_simulation)
+make_variables(as.estimate(input_estimated))
+Labour_cost+Management_cost
+
+
+# generating random values for variables of "input_estimates
+#make_variables(as.estimate(input_estimates))
+#Market_price #output: 5.895449
+#Labor_cost #output: 643.7335
+#Management_cost #output: 836.1038
+#Labor_cost+Management_cost #output: 1479.8373
+  
+```
+
+
+
+

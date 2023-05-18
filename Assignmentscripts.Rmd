@@ -1,0 +1,98 @@
+---
+title: "Practical1"
+author: "OyieyoSilas"
+date: "2023-05-05"
+output: html_document
+
+library(readr)
+urlfile = "https://raw.githubusercontent.com/CWWhitney/teaching_R/master/participants_data.csv"
+participants_dataklass <- read_csv(url(urlfile))
+print(participants_dataklass)
+
+#write.csv(participants_dataklass, "C:/Users/oyiey/OneDrive/Dokumente/UniBonn SS2023/
+          #DecisionAnalysis and forcusting proj/participants_dataklass_saved")
+
+#data check
+
+head(participants_dataklass)
+head(participants_dataklass, n = 10)
+
+tail(participants_dataklass, n = 2)
+
+names(participants_dataklass)
+str(participants_dataklass)
+
+#dplyr for  intersect, setdiff, setequal, union
+library(dplyr)
+socioEcon_data <- select(participants_dataklass,
+                         batch,
+                         age,
+                         gender,
+                         academic_parents,
+                         number_of_siblings,
+                         working_hours_per_day)
+print(socioEcon_data)    #can be exported as CSV as well
+
+filter(socioEcon_data, 
+       working_hours_per_day >5)
+
+# Changing the filter 
+filter(participants_dataklass, 
+       working_hours_per_day >5,
+       letters_in_first_name >6 &
+         continent_of_origin != 'Africa')
+
+# Renaming the variable 
+modified_data <- rename(participants_dataklass, 
+       commute = km_home_to_zef,
+       Email_due_date = days_to_email_response)
+print(modified_data)
+
+# Mutating a new column 
+mutate(participants_dataklass, 
+       Age_mean = age*
+         mean(age))
+
+# Mutating new column 
+select(participants_dataklass,days_to_email_response )
+#after recalling the column
+mutate(participants_dataklass, 
+       response_speed = 
+         ifelse(days_to_email_response > 1, 
+                "fast", "Late"))
+
+# Creating a summary 
+summarize(participants_dataklass,
+          mean(number_of_siblings),
+          median(years_of_study),
+          max(days_to_email_response))
+
+# Using the magrittr pipe to summarize 
+library(magrittr)
+participants_dataklass %>% 
+  group_by(days_to_email_response) %>% 
+  summarize(mean(days_to_email_response), 
+            median(letters_in_first_name), 
+            max(years_of_study))
+
+# Using the magrittr pipe to mutate
+ 
+participants_dataklass %>% 
+  mutate(commute = ifelse(
+    km_home_to_zef > 10, 
+    "commuter", "local")) %>% 
+  group_by(commute) %>% 
+  summarize(mean(days_to_email_response), 
+            median(letters_in_first_name), 
+            max(years_of_study))
+
+# purrr Split the data frame by the recommended column,(batch)
+
+library(purrr)
+participants_dataklass 
+  split(.$batch) 
+  map(~ lm(days_to_email_response ~ 
+             working_hours_per_day, 
+           data = .)) 
+  map(summary) 
+  map_dbl("R^2")

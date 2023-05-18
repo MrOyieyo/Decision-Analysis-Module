@@ -1,11 +1,13 @@
 #to the GITHUB
 #LECTURE/SEMINAR THREE 3
 library(readr)
-read.csv("C:/Users/oyiey/OneDrive/Dokumente/UniBonn SS2023/DecisionAnalysis/participants_data.csv")
+library(ggplot2)
 #Data visualization
+
+participants_dataklass <- read.csv("C:/Users/oyiey/OneDrive/Dokumente/UniBonn SS2023/DecisionAnalysis/participants_data.csv")
 ZEF_studentData <- participants_dataklass
 print(ZEF_studentData)
-library(ggplot2)
+
 #Bar plot
 ZEF_studentDataPlot <- table(ZEF_studentData$age)
 barplot(ZEF_studentDataPlot, main = "Age of ZEF student", xlab = "age", ylab = "freq")
